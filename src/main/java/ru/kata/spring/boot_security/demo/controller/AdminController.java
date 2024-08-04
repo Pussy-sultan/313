@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
@@ -54,23 +53,10 @@ public class AdminController {
     @PostMapping
     public String saveUser(
             @ModelAttribute("user") User user,
-            @ModelAttribute("userObject") User userObject,
             BindingResult bindingResult) {
-        System.out.println("do create user");
         if (bindingResult.hasErrors()) {
-            System.out.println("error create user");
             return "redirect:/admin";
         }
-        System.out.println("userObject");
-        System.out.println(user.getId());
-        System.out.println(user.getName());
-        System.out.println(user.getEmail());
-        System.out.println(user.getPassword());
-        System.out.println("user");
-        System.out.println(user.getId());
-        System.out.println(user.getName());
-        System.out.println(user.getEmail());
-        System.out.println(user.getPassword());
         userService.save(user);
         return "redirect:/admin";
     }
