@@ -34,9 +34,9 @@ public class SpringBootSecurityDemoApplication {
 		if (user == null) {
 			Set<Role> roleList = roleService.findAll();
 			User newUser = new User(
-					"Admin",
+					"admin",
 					"admin@mail.ru",
-					bCryptPasswordEncoder.encode("admin")
+					"admin"
 			);
 			newUser.setRoles(roleList);
 			userService.save(newUser);
@@ -49,7 +49,7 @@ public class SpringBootSecurityDemoApplication {
 			User newUser = new User(
 					"User1",
 					"user1@mail.ru",
-					bCryptPasswordEncoder.encode("user")
+					"user"
 			);
 			newUser.setRoles(roleList);
 			userService.save(newUser);
@@ -62,7 +62,7 @@ public class SpringBootSecurityDemoApplication {
 			User newUser = new User(
 					"User2",
 					"user2@mail.ru",
-					bCryptPasswordEncoder.encode("user")
+					"user"
 			);
 			newUser.setRoles(roleList);
 			userService.save(newUser);

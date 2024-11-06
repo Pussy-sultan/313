@@ -2,11 +2,6 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +9,11 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
-import java.util.Collection;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImp implements UserService, UserDetailsService {
+public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -37,16 +31,39 @@ public class UserServiceImp implements UserService, UserDetailsService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public void updateUser(User updateUser) {
+        User user = userRepository.findById(updateUser.getId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String currentPassword = user.getPassword();
+        String newPassword = updateUser.getPassword();
+        if (!currentPassword.equals(newPassword)) {
+            updateUser.setPassword((bCryptPasswordEncoder.encode(updateUser.getPassword())));
+        }
+        userRepository.save(updateUser);
+    }
+
     @Transactional
     @Override
     public void deleteById(int id) {
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        }
+        catch (EntityNotFoundException e) {
+            throw e;
+        }
+
     }
 
     @Transactional(readOnly = true)
     @Override
     public User getById(int id) {
-        return userRepository.getById(id);
+        try {
+            return userRepository.getById(id);
+        }
+        catch(EntityNotFoundException e) {
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -89,20 +106,4 @@ public class UserServiceImp implements UserService, UserDetailsService {
         return userRepository.findByName(email);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByName(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found exception");
-        }
-        return new org.springframework.security.core.userdetails.User(
-                user.getName(),
-                user.getPassword(),
-                mapRolesToAuthorities(user.getRoles())
-        );
-    }
-
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
-    }
 }

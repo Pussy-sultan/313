@@ -50,13 +50,15 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @PostMapping
-    public String saveUser(
-            @ModelAttribute("user") User user,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
-        }
+    @PostMapping("/update")
+    public String updateUser (@ModelAttribute("user") User user) {
+        userService.updateUser(user);
+        return "redirect:/admin";
+    }
+
+    @PostMapping()
+    public String saveUser(@ModelAttribute("newUser") User user) {
+
         userService.save(user);
         return "redirect:/admin";
     }
